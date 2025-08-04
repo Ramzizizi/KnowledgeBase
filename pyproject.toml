@@ -1,0 +1,47 @@
+[project]
+name = "knowlagebase"
+version = "0.1.0"
+description = "Pet-project for a custom and dynamic knowledge base"
+authors = [{name = "Roman Zazdravnyh"}]
+readme = "README.md"
+requires-python = ">=3.13, <=3.14"
+dependencies = [
+    "fastapi (>=0.116.1,<0.117.0)",
+    "orjson (>=3.11.1,<4.0.0)",
+    "pydantic (>=2.11.7,<3.0.0)",
+    "alembic (>=1.16.4,<2.0.0)",
+    "fastapi-pagination (>=0.13.3,<0.14.0)"
+]
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.17.0"
+ruff = "^0.12.5"
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+plugins = ["pydantic.mypy"]
+ignore_missing_imports = true
+no_implicit_optional = true
+show_error_codes = true
+warn_unused_ignores = true
+
+[tool.ruff]
+target-version = "py313"
+src = ["app"]
+exclude = [".venv", ".mypy_cache", ".ruff_cache"]
+line-length = 88
+extend-exclude = ["tests/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "T", "I", "B", "C", "Q"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/migrations/*.py" = ["E501"]
