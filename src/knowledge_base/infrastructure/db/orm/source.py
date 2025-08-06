@@ -17,11 +17,11 @@ class SourceModel(Base):
 
     @staticmethod
     def from_new_entity(source: NewSource) -> "SourceModel":
-        return SourceModel(link=source.link, id_subcategory=source.id_subcategory)
+        return SourceModel(link=str(source.link), id_subcategory=int(source.id_subcategory))
 
     @staticmethod
     def from_entity(source: Source) -> "SourceModel":
-        return SourceModel(id=source.id, link=source.link, id_subcategory=source.id_subcategory)
+        return SourceModel(id=int(source.id), link=str(source.link), id_subcategory=int(source.id_subcategory))
 
     def to_entity(self) -> Source:
         return Source(id=Id(self.id), link=Link(self.link), id_subcategory=Id(self.id_subcategory))

@@ -18,12 +18,17 @@ class QuestionModel(Base):
 
     @staticmethod
     def from_new_entity(question: NewQuestion) -> "QuestionModel":
-        return QuestionModel(title=question.title, answer=question.answer, id_subcategory=question.id_subcategory)
+        return QuestionModel(
+            title=str(question.title), answer=question.answer, id_subcategory=int(question.id_subcategory)
+        )
 
     @staticmethod
     def from_entity(question: Question) -> "QuestionModel":
         return QuestionModel(
-            id=question.id, title=question.title, answer=question.answer, id_subcategory=question.id_subcategory
+            id=int(question.id),
+            title=str(question.title),
+            answer=question.answer,
+            id_subcategory=int(question.id_subcategory),
         )
 
     def to_entity(self) -> Question:

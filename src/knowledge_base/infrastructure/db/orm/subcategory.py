@@ -17,11 +17,13 @@ class SubCategoryModel(Base):
 
     @staticmethod
     def from_new_entity(subcategory: NewSubCategory) -> "SubCategoryModel":
-        return SubCategoryModel(title=subcategory.title, id_category=subcategory.id_category)
+        return SubCategoryModel(title=str(subcategory.title), id_category=int(subcategory.id_category))
 
     @staticmethod
     def from_entity(subcategory: SubCategory) -> "SubCategoryModel":
-        return SubCategoryModel(id=subcategory.id, title=subcategory.title, id_category=subcategory.id_category)
+        return SubCategoryModel(
+            id=int(subcategory.id), title=str(subcategory.title), id_category=int(subcategory.id_category)
+        )
 
     def to_entity(self) -> SubCategory:
         return SubCategory(id=Id(self.id), title=Title(self.title), id_category=Id(self.id_category))

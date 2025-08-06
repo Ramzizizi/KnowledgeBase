@@ -15,11 +15,8 @@ class Id:
 
         self._value: int = value
 
-    def __get__(self, instance, owner):  # type: ignore
-        return instance.id
-
-    def __str__(self) -> str:
-        return str(self._value)
+    def __int__(self) -> int:
+        return self._value
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Id) and self._value == other._value

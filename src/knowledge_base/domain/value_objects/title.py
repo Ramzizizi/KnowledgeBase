@@ -17,9 +17,6 @@ class Title:
 
         self._value: str = clean
 
-    def __get__(self, instance, owner):  # type: ignore
-        return instance.title
-
     def __str__(self) -> str:
         return self._value
 

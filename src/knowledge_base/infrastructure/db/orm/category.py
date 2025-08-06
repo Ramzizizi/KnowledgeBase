@@ -16,11 +16,11 @@ class CategoryModel(Base):
 
     @staticmethod
     def from_new_entity(category: NewCategory) -> "CategoryModel":
-        return CategoryModel(title=category.title, description=category.description)
+        return CategoryModel(title=str(category.title), description=category.description)
 
     @staticmethod
     def from_entity(category: Category) -> "CategoryModel":
-        return CategoryModel(id=category.id, title=category.title, description=category.description)
+        return CategoryModel(id=int(category.id), title=str(category.title), description=category.description)
 
     def to_entity(self) -> Category:
         return Category(id=Id(self.id), title=Title(self.title), description=self.description)

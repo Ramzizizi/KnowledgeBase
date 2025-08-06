@@ -17,9 +17,6 @@ class Link:
 
         self._value: str = raw
 
-    def __get__(self, instance, owner):  # type: ignore
-        return instance.link
-
     def __str__(self) -> str:
         return self._value
 

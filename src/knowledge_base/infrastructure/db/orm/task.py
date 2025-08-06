@@ -16,11 +16,11 @@ class TaskModel(Base):
 
     @staticmethod
     def from_new_entity(task: NewTask) -> "TaskModel":
-        return TaskModel(description=task.description, id_subcategory=task.id_subcategory)
+        return TaskModel(description=task.description, id_subcategory=int(task.id_subcategory))
 
     @staticmethod
     def from_entity(task: Task) -> "TaskModel":
-        return TaskModel(id=task.id, description=task.description, id_subcategory=task.id_subcategory)
+        return TaskModel(id=int(task.id), description=task.description, id_subcategory=int(task.id_subcategory))
 
     def to_entity(self) -> Task:
         return Task(id=Id(self.id), description=self.description, id_subcategory=Id(self.id_subcategory))
