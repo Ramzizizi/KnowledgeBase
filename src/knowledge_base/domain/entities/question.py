@@ -1,27 +1,38 @@
+from dataclasses import dataclass
+
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.domain.value_objects.title import Title
 
 
-class Question:
-    def __init__(self, id_question: Id, title: Title, answer: str | None):
-        self._id: Id = id_question
-        self._title: Title = title
-        self._answer: str | None = answer
+@dataclass
+class QuestionBase:
+    title: Title
+    answer: str | None
+    id_subcategory: Id
 
-    @property
-    def id(self) -> Id:
-        return self._id
+    def change_title(
+        self,
+        new_title: Title,
+    ) -> None:
+        self.title = new_title
 
-    @property
-    def title(self) -> Title:
-        return self._title
+    def change_answer(
+        self,
+        new_answer: str | None,
+    ) -> None:
+        self.answer = new_answer
 
-    @property
-    def answer(self) -> str | None:
-        return self._answer
+    def change_subcategory(
+        self,
+        new_id_subcategory: Id,
+    ) -> None:
+        self.id_subcategory = new_id_subcategory
 
-    def change_title(self, new_title: Title) -> None:
-        self._title = new_title
 
-    def change_answer(self, new_answer: str | None) -> None:
-        self._answer = new_answer
+@dataclass
+class NewQuestion(QuestionBase): ...
+
+
+@dataclass
+class Question(QuestionBase):
+    id: Id

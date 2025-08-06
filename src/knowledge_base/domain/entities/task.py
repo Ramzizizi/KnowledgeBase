@@ -1,18 +1,30 @@
+from dataclasses import dataclass
+
 from knowledge_base.domain.value_objects.id import Id
 
 
-class Task:
-    def __init__(self, id_task: Id, description: str):
-        self._id: Id = id_task
-        self._description: str = description
+@dataclass
+class TaskBase:
+    description: str
+    id_subcategory: Id
 
-    @property
-    def id(self) -> Id:
-        return self._id
+    def change_description(
+        self,
+        new_description: str,
+    ) -> None:
+        self.description = new_description
 
-    @property
-    def description(self) -> str:
-        return self._description
+    def change_subcategory(
+        self,
+        new_id_subcategory: Id,
+    ) -> None:
+        self.id_subcategory = new_id_subcategory
 
-    def change_description(self, new_description: str) -> None:
-        self._description = new_description
+
+@dataclass
+class NewTask(TaskBase): ...
+
+
+@dataclass
+class Task(TaskBase):
+    id: Id

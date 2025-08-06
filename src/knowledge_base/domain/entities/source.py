@@ -1,19 +1,31 @@
+from dataclasses import dataclass
+
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.domain.value_objects.link import Link
 
 
-class Source:
-    def __init__(self, id_source: Id, link: Link):
-        self._id: Id = id_source
-        self._link: Link = link
+@dataclass
+class SourceBase:
+    link: Link
+    id_subcategory: Id
 
-    @property
-    def id(self) -> Id:
-        return self._id
+    def change_link(
+        self,
+        link: Link,
+    ) -> None:
+        self.link = link
 
-    @property
-    def link(self) -> Link:
-        return self._link
+    def change_subcategory(
+        self,
+        new_id_subcategory: Id,
+    ) -> None:
+        self.id_subcategory = new_id_subcategory
 
-    def change_link(self, link: Link) -> None:
-        self._link = link
+
+@dataclass
+class NewSource(SourceBase): ...
+
+
+@dataclass
+class Source(SourceBase):
+    id: Id
