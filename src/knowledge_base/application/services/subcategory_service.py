@@ -16,7 +16,7 @@ class SubCategoryService:
             subcategory = await uow.subcategories.get(id_object)
 
             if subcategory is None:
-                raise SubCategoryNotFound("Subcategory not found")
+                raise SubCategoryNotFound("Subcategory not found.")
 
         return subcategory
 
@@ -26,10 +26,10 @@ class SubCategoryService:
             title_object = Title(title)
 
             if await uow.categories.get(id_object) is None:
-                raise CategoryNotFound("Category not found")
+                raise CategoryNotFound("Category not found.")
 
             new_subcategory = NewSubCategory(id_category=id_object, title=title_object)
-            return await uow.subcategories.create(new_subcategory)
+            return await uow.subcategories.save(new_subcategory)
 
     async def update(self, id_subcategory: int, changes: dict[str, str | int]) -> SubCategory:
         async with self.uow as uow:
@@ -38,7 +38,7 @@ class SubCategoryService:
             subcategory = await uow.subcategories.get(id_object)
 
             if subcategory is None:
-                raise SubCategoryNotFound("Subcategory not found")
+                raise SubCategoryNotFound("Subcategory not found.")
 
             if "title" in changes:
                 subcategory.change_title(title_object)
@@ -47,10 +47,11 @@ class SubCategoryService:
                 id_category = Id(changes["id_category"])
 
                 if await uow.categories.get(id_category) is None:
-                    raise CategoryNotFound("Category not found")
+                    raise CategoryNotFound("Category not found.")
 
                 subcategory.change_category(id_category)
-        return subcategory
+
+            return await uow.subcategories.save(subcategory)
 
     async def delete(self, id_subcategory: int) -> None:
         async with self.uow as uow:
@@ -59,7 +60,7 @@ class SubCategoryService:
             subcategory = await uow.subcategories.get(id_object)
 
             if subcategory is None:
-                raise SubCategoryNotFound("Subcategory not found")
+                raise SubCategoryNotFound("Subcategory not found.")
 
             if not policy.can_delete(id_object):
                 raise SubCategoryHasRelatedData("The subcategory has related data.")

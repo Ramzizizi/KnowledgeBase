@@ -24,7 +24,7 @@ class CategoryService:
         async with self.uow as uow:
             title_object = Title(title)
             new_category = NewCategory(title=title_object, description=description)
-            return await uow.categories.create(new_category)
+            return await uow.categories.save(new_category)
 
     async def update(self, id_subcategory: int, changes: dict[str, str]) -> Category:
         async with self.uow as uow:
@@ -40,7 +40,7 @@ class CategoryService:
             if "description" in changes:
                 category.change_description(changes["description"])
 
-        return category
+            return await uow.categories.save(category)
 
     async def delete(self, id_category: int) -> None:
         async with self.uow as uow:

@@ -1,40 +1,51 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
-from knowledge_base.domain.entities.category import Category, NewCategory
-from knowledge_base.domain.entities.subcategory import SubCategory
+from knowledge_base.domain.entities.subcategory import NewSubCategory, SubCategory
 from knowledge_base.domain.repository.subcategory_repository import SubCategoryRepository
 from knowledge_base.domain.value_objects.id import Id
-from knowledge_base.infrastructure.db.orm.category import CategoryModel
+from knowledge_base.infrastructure.db.orm.subcategory import SubCategoryModel
 
 
 class SqlAlchemySubCategoryRepository(SubCategoryRepository):
     def __init__(self, session: AsyncSession):
         self.session: AsyncSession = session
 
-    async def get(self, id_category: Id) -> Category | None:
-        stmt = select(CategoryModel).where(CategoryModel.id == id_category)
-        category = (await self.session.execute(stmt)).scalar_one_or_none()
+    async def get(self, id_subcategory: Id) -> SubCategory | None:
+        stmt = select(SubCategoryModel).where(SubCategoryModel.id == id_subcategory)
+        subcategory = (await self.session.execute(stmt)).scalar_one_or_none()
 
-        if category:
-            return category.to_entity()
+        if subcategory:
+            return subcategory.to_entity()
 
         return None
 
-    async def create(self, category: NewCategory) -> Category:
-        new_category = CategoryModel.from_entity(category)
-        self.session.add(new_category)
-        await self.session.flush([new_category])
+    async def save(self, subcategory: NewSubCategory | SubCategory) -> SubCategory:
+        if isinstance(subcategory, NewSubCategory):
+            model_subcategory = SubCategoryModel.from_new_entity(subcategory)
+        else:
+            model_subcategory = SubCategoryModel.from_entity(subcategory)
 
-        return new_category.to_entity()
+        self.session.add(model_subcategory)
+        await self.session.flush([model_subcategory])
 
-    async def delete(self, id_category: Id) -> None:
-        stmt = select(CategoryModel).where(CategoryModel.id == id_category)
-        category = (await self.session.execute(stmt)).scalar_one_or_none()
+        return model_subcategory.to_entity()
 
-        if category:
-            await self.session.delete(category)
+    async def delete(self, id_subcategory: Id) -> None:
+        stmt = select(SubCategoryModel).where(SubCategoryModel.id == id_subcategory)
+        subcategory = (await self.session.execute(stmt)).scalar_one_or_none()
 
-    async def list_by_category(self, id_category: Id) -> list[SubCategory]: ...
+        if subcategory:
+            await self.session.delete(subcategory)
 
-    async def exists_by_category(self, id_category: Id) -> bool: ...
+    async def list_by_category(self, id_category: Id) -> list[SubCategory]:
+        stmt = select(SubCategoryModel).where(SubCategoryModel.id_category == id_category)
+        subcategories = (await self.session.execute(stmt)).scalars()
+
+        return [subcategory.to_entity() for subcategory in subcategories]
+
+    async def exists_by_category(self, id_category: Id) -> bool:
+        stmt = select(SubCategoryModel).where(SubCategoryModel.id_category == id_category)
+        subcategory = (await self.session.execute(stmt)).scalar_one_or_none()
+
+        return bool(subcategory)

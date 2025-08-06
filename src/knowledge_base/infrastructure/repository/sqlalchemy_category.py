@@ -20,12 +20,16 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
 
         return None
 
-    async def create(self, category: NewCategory) -> Category:
-        new_category = CategoryModel.from_entity(category)
-        self.session.add(new_category)
-        await self.session.flush([new_category])
+    async def save(self, category: NewCategory | Category) -> Category:
+        if isinstance(category, NewCategory):
+            model_category = CategoryModel.from_new_entity(category)
+        else:
+            model_category = CategoryModel.from_entity(category)
 
-        return new_category.to_entity()
+        self.session.add(model_category)
+        await self.session.flush([model_category])
+
+        return model_category.to_entity()
 
     async def delete(self, id_category: Id) -> None:
         stmt = select(CategoryModel).where(CategoryModel.id == id_category)
