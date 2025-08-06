@@ -6,31 +6,16 @@ from knowledge_base.domain.value_objects.id import Id
 
 class QuestionRepository(ABC):
     @abstractmethod
-    async def get(
-        self,
-        id_question: Id,
-    ) -> Question | None: ...
+    async def get(self, id_question: Id) -> Question | None: ...
 
     @abstractmethod
-    async def create(
-        self,
-        question: NewQuestion,
-    ) -> Question: ...
+    async def create(self, question: NewQuestion) -> Question: ...
 
     @abstractmethod
-    async def delete(
-        self,
-        id_question: Id,
-    ) -> None: ...
+    async def delete(self, id_question: Id) -> None: ...
 
     @abstractmethod
-    async def list_by_subcategory(
-        self,
-        id_subcategory: Id,
-    ) -> list[Question]: ...
+    async def list_by_subcategory(self, id_subcategory: Id) -> list[Question]: ...
 
     @abstractmethod
-    async def exists_by_subcategory(
-        self,
-        id_subcategory: Id,
-    ) -> bool: ...
+    async def exists_by_subcategory(self, id_subcategory: Id) -> bool: ...

@@ -6,19 +6,10 @@ from knowledge_base.domain.value_objects.id import Id
 
 class CategoryRepository(ABC):
     @abstractmethod
-    async def get(
-        self,
-        id_category: Id,
-    ) -> Category | None: ...
+    async def get(self, id_category: Id) -> Category | None: ...
 
     @abstractmethod
-    async def create(
-        self,
-        category: NewCategory,
-    ) -> Category: ...
+    async def create(self, category: NewCategory) -> Category: ...
 
     @abstractmethod
-    async def delete(
-        self,
-        id_category: Id,
-    ) -> None: ...
+    async def delete(self, id_category: Id) -> None: ...

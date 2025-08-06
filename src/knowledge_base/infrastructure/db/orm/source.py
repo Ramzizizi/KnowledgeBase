@@ -7,16 +7,7 @@ from knowledge_base.infrastructure.db.database import Base
 class SourceModel(Base):
     __tablename__ = "sources"
 
-    id: Mapped[int] = mapped_column(
-        Integer,
-        primary_key=True,
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     link: Mapped[str]
 
-    id_category: Mapped[int] = mapped_column(
-        ForeignKey(
-            "subcategories.id",
-            ondelete="RESTRICT",
-        ),
-        nullable=False,
-    )
+    id_category: Mapped[int] = mapped_column(ForeignKey("subcategories.id", ondelete="RESTRICT"), nullable=False)

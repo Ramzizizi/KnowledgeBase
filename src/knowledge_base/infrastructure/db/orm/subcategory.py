@@ -10,36 +10,14 @@ from knowledge_base.infrastructure.db.database import Base
 class SubCategoryModel(Base):
     __tablename__ = "subcategories"
 
-    id: Mapped[int] = mapped_column(
-        Integer,
-        primary_key=True,
-    )
-    title: Mapped[str] = mapped_column(
-        String,
-        nullable=False,
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(String, nullable=False)
 
-    id_category: Mapped[int] = mapped_column(
-        ForeignKey(
-            "categories.id",
-            ondelete="RESTRICT",
-        ),
-        nullable=False,
-    )
+    id_category: Mapped[int] = mapped_column(ForeignKey("categories.id", ondelete="RESTRICT"), nullable=False)
 
     @staticmethod
-    def from_entity(
-        category: NewSubCategory,
-    ) -> "SubCategoryModel":
-        return SubCategoryModel(
-            title=category.title,
-        )
+    def from_entity(category: NewSubCategory) -> "SubCategoryModel":
+        return SubCategoryModel(title=category.title)
 
-    def to_entity(
-        self,
-    ) -> SubCategory:
-        return SubCategory(
-            id=Id(self.id),
-            title=Title(self.title),
-            id_category=Id(self.id_category),
-        )
+    def to_entity(self) -> SubCategory:
+        return SubCategory(id=Id(self.id), title=Title(self.title), id_category=Id(self.id_category))

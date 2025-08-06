@@ -17,9 +17,7 @@ class AbstractUoW(AbstractAsyncContextManager["AbstractUoW"]):
     sources: SourceRepository
 
     @abstractmethod
-    async def __aenter__(
-        self,
-    ) -> "AbstractUoW":
+    async def __aenter__(self) -> "AbstractUoW":
         return self
 
     @abstractmethod
@@ -31,10 +29,6 @@ class AbstractUoW(AbstractAsyncContextManager["AbstractUoW"]):
     ) -> None: ...
 
     @abstractmethod
-    async def commit(
-        self,
-    ) -> None: ...
+    async def commit(self) -> None: ...
     @abstractmethod
-    async def rollback(
-        self,
-    ) -> None: ...
+    async def rollback(self) -> None: ...

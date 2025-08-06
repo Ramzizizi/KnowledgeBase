@@ -9,16 +9,10 @@ class CategoryBase:
     title: Title
     description: str | None
 
-    def change_title(
-        self,
-        new_title: Title,
-    ) -> None:
+    def change_title(self, new_title: Title) -> None:
         self.title = new_title
 
-    def change_description(
-        self,
-        new_description: str | None,
-    ) -> None:
+    def change_description(self, new_description: str | None) -> None:
         self.description = new_description
 
 

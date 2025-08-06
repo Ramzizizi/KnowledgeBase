@@ -8,16 +8,10 @@ class TaskBase:
     description: str
     id_subcategory: Id
 
-    def change_description(
-        self,
-        new_description: str,
-    ) -> None:
+    def change_description(self, new_description: str) -> None:
         self.description = new_description
 
-    def change_subcategory(
-        self,
-        new_id_subcategory: Id,
-    ) -> None:
+    def change_subcategory(self, new_id_subcategory: Id) -> None:
         self.id_subcategory = new_id_subcategory
 
 

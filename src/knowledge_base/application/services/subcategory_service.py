@@ -7,16 +7,10 @@ from knowledge_base.domain.value_objects.title import Title
 
 
 class SubCategoryService:
-    def __init__(
-        self,
-        uow: AbstractUoW,
-    ):
+    def __init__(self, uow: AbstractUoW):
         self.uow: AbstractUoW = uow
 
-    async def get(
-        self,
-        id_subcategory: int,
-    ) -> SubCategory:
+    async def get(self, id_subcategory: int) -> SubCategory:
         async with self.uow as uow:
             id_object = Id(id_subcategory)
             subcategory = await uow.subcategories.get(id_object)
@@ -26,11 +20,7 @@ class SubCategoryService:
 
         return subcategory
 
-    async def create(
-        self,
-        id_category: int,
-        title: str,
-    ) -> SubCategory:
+    async def create(self, id_category: int, title: str) -> SubCategory:
         async with self.uow as uow:
             id_object = Id(id_category)
             title_object = Title(title)
@@ -38,20 +28,10 @@ class SubCategoryService:
             if await uow.categories.get(id_object) is None:
                 raise CategoryNotFound("Category not found")
 
-            new_subcategory = NewSubCategory(
-                id_category=id_object,
-                title=title_object,
-            )
+            new_subcategory = NewSubCategory(id_category=id_object, title=title_object)
             return await uow.subcategories.create(new_subcategory)
 
-    async def update(
-        self,
-        id_subcategory: int,
-        changes: dict[
-            str,
-            str | int,
-        ],
-    ) -> SubCategory:
+    async def update(self, id_subcategory: int, changes: dict[str, str | int]) -> SubCategory:
         async with self.uow as uow:
             id_object = Id(id_subcategory)
             title_object = Title(changes["title"])
@@ -72,16 +52,9 @@ class SubCategoryService:
                 subcategory.change_category(id_category)
         return subcategory
 
-    async def delete(
-        self,
-        id_subcategory: int,
-    ) -> None:
+    async def delete(self, id_subcategory: int) -> None:
         async with self.uow as uow:
-            policy = SubCategoryDeletionPolicy(
-                uow.tasks,
-                uow.sources,
-                uow.questions,
-            )
+            policy = SubCategoryDeletionPolicy(uow.tasks, uow.sources, uow.questions)
             id_object = Id(id_subcategory)
             subcategory = await uow.subcategories.get(id_object)
 

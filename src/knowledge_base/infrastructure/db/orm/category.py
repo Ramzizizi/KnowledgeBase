@@ -10,30 +10,13 @@ from knowledge_base.infrastructure.db.database import Base
 class CategoryModel(Base):
     __tablename__ = "categories"
 
-    id: Mapped[int] = mapped_column(
-        Integer,
-        primary_key=True,
-    )
-    title: Mapped[str] = mapped_column(
-        String,
-        nullable=False,
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str]
 
     @staticmethod
-    def from_entity(
-        category: NewCategory,
-    ) -> "CategoryModel":
-        return CategoryModel(
-            title=category.title,
-            description=category.description,
-        )
+    def from_entity(category: NewCategory) -> "CategoryModel":
+        return CategoryModel(title=category.title, description=category.description)
 
-    def to_entity(
-        self,
-    ) -> Category:
-        return Category(
-            id=Id(self.id),
-            title=Title(self.title),
-            description=self.description,
-        )
+    def to_entity(self) -> Category:
+        return Category(id=Id(self.id), title=Title(self.title), description=self.description)
