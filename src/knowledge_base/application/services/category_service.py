@@ -20,6 +20,10 @@ class CategoryService:
 
         return category
 
+    async def list(self) -> list[Category]:
+        async with self.uow as uow:
+            return await uow.categories.list()
+
     async def create(self, title: str, description: str) -> Category:
         async with self.uow as uow:
             title_object = Title(title)

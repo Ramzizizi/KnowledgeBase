@@ -20,6 +20,12 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
 
         return None
 
+    async def list(self) -> list[Category]:
+        stmt = select(CategoryModel)
+        categories = (await self.session.execute(stmt)).scalars()
+
+        return [category.to_entity() for category in categories]
+
     async def save(self, category: NewCategory | Category) -> Category:
         if isinstance(category, NewCategory):
             model_category = CategoryModel.from_new_entity(category)

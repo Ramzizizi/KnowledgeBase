@@ -16,17 +16,16 @@ class AbstractUoW(AbstractAsyncContextManager["AbstractUoW"]):
     tasks: TaskRepository
     sources: SourceRepository
 
-    @abstractmethod
     async def __aenter__(self) -> "AbstractUoW":
         return self
 
-    @abstractmethod
     async def __aexit__(
         self,
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
-    ) -> None: ...
+    ) -> None:
+        await self.rollback() if exc_type else await self.commit()
 
     @abstractmethod
     async def commit(self) -> None: ...
