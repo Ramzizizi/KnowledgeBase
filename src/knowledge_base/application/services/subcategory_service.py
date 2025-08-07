@@ -1,6 +1,6 @@
 from knowledge_base.application.uow import AbstractUoW
 from knowledge_base.domain.entities.subcategory import NewSubCategory, SubCategory
-from knowledge_base.domain.errors import CategoryNotFound, SubCategoryHasRelatedData, SubCategoryNotFound
+from knowledge_base.domain.errors import HasRelatedData, NotFound
 from knowledge_base.domain.services.subcategory_policy import SubCategoryDeletionPolicy
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.domain.value_objects.title import Title
@@ -16,7 +16,7 @@ class SubCategoryService:
             subcategory = await uow.subcategories.get(id_object)
 
             if subcategory is None:
-                raise SubCategoryNotFound("Subcategory not found.")
+                raise NotFound("Subcategory not found.")
 
         return subcategory
 
@@ -26,7 +26,7 @@ class SubCategoryService:
             title_object = Title(title)
 
             if await uow.categories.get(id_object) is None:
-                raise CategoryNotFound("Category not found.")
+                raise NotFound("Category not found.")
 
             new_subcategory = NewSubCategory(id_category=id_object, title=title_object)
             return await uow.subcategories.save(new_subcategory)
@@ -38,7 +38,7 @@ class SubCategoryService:
             subcategory = await uow.subcategories.get(id_object)
 
             if subcategory is None:
-                raise SubCategoryNotFound("Subcategory not found.")
+                raise NotFound("Subcategory not found.")
 
             if "title" in changes:
                 subcategory.change_title(title_object)
@@ -47,7 +47,7 @@ class SubCategoryService:
                 id_category = Id(changes["id_category"])
 
                 if await uow.categories.get(id_category) is None:
-                    raise CategoryNotFound("Category not found.")
+                    raise NotFound("Category not found.")
 
                 subcategory.change_category(id_category)
 
@@ -60,9 +60,15 @@ class SubCategoryService:
             subcategory = await uow.subcategories.get(id_object)
 
             if subcategory is None:
-                raise SubCategoryNotFound("Subcategory not found.")
+                raise NotFound("Subcategory not found.")
 
             if not policy.can_delete(id_object):
-                raise SubCategoryHasRelatedData("The subcategory has related data.")
+                raise HasRelatedData("The subcategory has related data.")
 
             await uow.subcategories.delete(id_object)
+
+    async def list_by_category(self, id_category: int) -> list[SubCategory]:
+        id_object = Id(id_category)
+
+        async with self.uow as uow:
+            return await uow.subcategories.list_by_category(id_object)

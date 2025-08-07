@@ -1,6 +1,6 @@
 from knowledge_base.application.uow import AbstractUoW
 from knowledge_base.domain.entities.category import Category, NewCategory
-from knowledge_base.domain.errors import CategoryHasRelatedData, CategoryNotFound
+from knowledge_base.domain.errors import HasRelatedData, NotFound
 from knowledge_base.domain.services.category_policy import CategoryDeletionPolicy
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.domain.value_objects.title import Title
@@ -16,7 +16,7 @@ class CategoryService:
             category = await uow.categories.get(id_object)
 
             if category is None:
-                raise CategoryNotFound("Category not found.")
+                raise NotFound("Category not found.")
 
         return category
 
@@ -37,7 +37,7 @@ class CategoryService:
             category = await uow.categories.get(id_object)
 
             if category is None:
-                raise CategoryNotFound("Category not found.")
+                raise NotFound("Category not found.")
 
             if "title" in changes:
                 category.change_title(title_object)
@@ -53,9 +53,9 @@ class CategoryService:
             category = await uow.categories.get(id_object)
 
             if category is None:
-                raise CategoryNotFound("Category not found.")
+                raise NotFound("Category not found.")
 
             if not policy.can_delete(id_object):
-                raise CategoryHasRelatedData("The category has related data.")
+                raise HasRelatedData("The category has related data.")
 
             await uow.categories.delete(id_object)

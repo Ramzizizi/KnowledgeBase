@@ -1,6 +1,6 @@
 from knowledge_base.application.uow import AbstractUoW
 from knowledge_base.domain.entities.source import NewSource, Source
-from knowledge_base.domain.errors import SourceNotFound, SubCategoryNotFound
+from knowledge_base.domain.errors import NotFound
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.domain.value_objects.link import Link
 
@@ -15,7 +15,7 @@ class SourceService:
             source = await uow.sources.get(id_object)
 
         if source is None:
-            raise SourceNotFound("Source not found.")
+            raise NotFound("Source not found.")
 
         return source
 
@@ -25,7 +25,7 @@ class SourceService:
 
         async with self.uow as uow:
             if await uow.subcategories.get(id_object) is None:
-                raise SubCategoryNotFound("Subcategory not found.")
+                raise NotFound("Subcategory not found.")
 
             new_source = NewSource(link=link_object, id_subcategory=id_object)
 
@@ -38,7 +38,7 @@ class SourceService:
             source = await uow.sources.get(id_object)
 
             if source is None:
-                raise SourceNotFound("Source not found.")
+                raise NotFound("Source not found.")
 
             if "link" in changes:
                 link = Link(str(changes["link"]))
@@ -48,7 +48,7 @@ class SourceService:
                 id_subcategory = Id(changes["id_subcategory"])
 
                 if await uow.subcategories.get(id_subcategory) is None:
-                    raise SubCategoryNotFound("Subcategory not found.")
+                    raise NotFound("Subcategory not found.")
 
                 source.change_subcategory(id_subcategory)
 
@@ -60,6 +60,12 @@ class SourceService:
             source = await uow.sources.get(id_object)
 
             if source is None:
-                raise SourceNotFound("Source not found.")
+                raise NotFound("Source not found.")
 
             await uow.sources.delete(id_object)
+
+    async def list_by_subcategory(self, id_subcategory: int) -> list[Source]:
+        id_object = Id(id_subcategory)
+
+        async with self.uow as uow:
+            return await uow.sources.list_by_subcategory(id_object)

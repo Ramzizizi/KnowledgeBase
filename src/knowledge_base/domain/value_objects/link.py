@@ -1,7 +1,7 @@
 import re
 from typing import Any
 
-from knowledge_base.domain.errors import InvalidLink
+from knowledge_base.domain.errors import InvalidValue
 
 
 class Link:
@@ -13,7 +13,7 @@ class Link:
 
     def __init__(self, raw: str):
         if re.match(self.__PATTERN, raw) is None:
-            raise InvalidLink("Invalid link.")
+            raise InvalidValue("Invalid link.")
 
         self._value: str = raw
 

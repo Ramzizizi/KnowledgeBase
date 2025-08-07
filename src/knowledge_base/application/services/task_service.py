@@ -1,6 +1,6 @@
 from knowledge_base.application.uow import AbstractUoW
 from knowledge_base.domain.entities.task import NewTask, Task
-from knowledge_base.domain.errors import SubCategoryNotFound, TaskNotFound
+from knowledge_base.domain.errors import NotFound
 from knowledge_base.domain.value_objects.id import Id
 
 
@@ -15,7 +15,7 @@ class TaskService:
             task = await uow.tasks.get(id_object)
 
         if task is None:
-            raise TaskNotFound("Task not found.")
+            raise NotFound("Task not found.")
 
         return task
 
@@ -24,7 +24,7 @@ class TaskService:
 
         async with self.uow as uow:
             if await uow.tasks.get(id_object) is None:
-                raise TaskNotFound("Task not found.")
+                raise NotFound("Task not found.")
 
             new_task = NewTask(id_subcategory=id_object, description=description)
 
@@ -37,7 +37,7 @@ class TaskService:
             task = await uow.tasks.get(id_object)
 
             if task is None:
-                raise TaskNotFound("Task not found.")
+                raise NotFound("Task not found.")
 
             if "description" in changes:
                 task.change_description(str(changes["description"]))
@@ -46,7 +46,7 @@ class TaskService:
                 id_subcategory = Id(changes["id_subcategory"])
 
                 if await uow.subcategories.get(id_subcategory) is None:
-                    raise SubCategoryNotFound("Subcategory not found.")
+                    raise NotFound("Subcategory not found.")
 
                 task.change_subcategory(id_subcategory)
 
@@ -59,6 +59,12 @@ class TaskService:
             task = await uow.tasks.get(id_object)
 
             if task is None:
-                raise TaskNotFound("Task not found.")
+                raise NotFound("Task not found.")
 
             await uow.tasks.delete(id_object)
+
+    async def list_by_subcategory(self, id_subcategory: int) -> list[Task]:
+        id_object = Id(id_subcategory)
+
+        async with self.uow as uow:
+            return await uow.tasks.list_by_subcategory(id_object)

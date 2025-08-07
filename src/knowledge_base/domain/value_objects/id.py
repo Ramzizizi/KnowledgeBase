@@ -1,6 +1,6 @@
 from typing import Any
 
-from knowledge_base.domain.errors import InvalidId
+from knowledge_base.domain.errors import InvalidValue
 
 
 class Id:
@@ -8,10 +8,10 @@ class Id:
 
     def __init__(self, value: Any):
         if not isinstance(value, int):
-            raise InvalidId("Id must be an integer.")
+            raise InvalidValue("Id must be an integer.")
 
         if value <= 0:
-            raise InvalidId("Id must be greater than 0.")
+            raise InvalidValue("Id must be greater than 0.")
 
         self._value: int = value
 

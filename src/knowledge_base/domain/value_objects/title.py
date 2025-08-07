@@ -1,6 +1,6 @@
 from typing import Any
 
-from knowledge_base.domain.errors import InvalidTitle
+from knowledge_base.domain.errors import InvalidValue
 
 
 class Title:
@@ -8,12 +8,12 @@ class Title:
 
     def __init__(self, raw: Any):
         if not isinstance(raw, str):
-            raise InvalidTitle("Title must be an string.")
+            raise InvalidValue("Title must be an string.")
 
         clean = raw.strip()
 
         if not (1 <= len(clean) <= 50):
-            raise InvalidTitle("Title length must be between 1 and 50.")
+            raise InvalidValue("Title length must be between 1 and 50.")
 
         self._value: str = clean
 
