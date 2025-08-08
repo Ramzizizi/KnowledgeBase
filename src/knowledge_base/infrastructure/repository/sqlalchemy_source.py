@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from knowledge_base.domain.entities.source import NewSource, Source
@@ -11,8 +11,13 @@ class SqlAlchemySourceRepository(SourceRepository):
     def __init__(self, session: AsyncSession):
         self.session: AsyncSession = session
 
-    async def get(self, id_source: Id) -> Source | None:
-        stmt = select(SourceModel).where(SourceModel.id == id_source)
+    async def get(self, id_subcategory: Id, id_source: Id) -> Source | None:
+        stmt = select(SourceModel).where(
+            and_(
+                SourceModel.id == id_source,
+                SourceModel.id_subcategory == id_subcategory,
+            )
+        )
         source = (await self.session.execute(stmt)).scalar_one_or_none()
 
         if source:
@@ -31,8 +36,13 @@ class SqlAlchemySourceRepository(SourceRepository):
 
         return model_source.to_entity()
 
-    async def delete(self, id_source: Id) -> None:
-        stmt = select(SourceModel).where(SourceModel.id == id_source)
+    async def delete(self, id_subcategory: Id, id_source: Id) -> None:
+        stmt = select(SourceModel).where(
+            and_(
+                SourceModel.id == id_source,
+                SourceModel.id_subcategory == id_subcategory,
+            )
+        )
         source = (await self.session.execute(stmt)).scalar_one_or_none()
 
         if source:

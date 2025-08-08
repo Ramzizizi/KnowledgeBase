@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from knowledge_base.domain.entities.task import NewTask, Task
@@ -11,8 +11,13 @@ class SqlAlchemyTaskRepository(TaskRepository):
     def __init__(self, session: AsyncSession):
         self.session: AsyncSession = session
 
-    async def get(self, id_task: Id) -> Task | None:
-        stmt = select(TaskModel).where(TaskModel.id == id_task)
+    async def get(self, id_subcategory: Id, id_task: Id) -> Task | None:
+        stmt = select(TaskModel).where(
+            and_(
+                TaskModel.id == id_task,
+                TaskModel.id_subcategory == id_subcategory,
+            )
+        )
         task = (await self.session.execute(stmt)).scalar_one_or_none()
 
         if task:
@@ -32,8 +37,13 @@ class SqlAlchemyTaskRepository(TaskRepository):
 
         return model_task.to_entity()
 
-    async def delete(self, id_task: Id) -> None:
-        stmt = select(TaskModel).where(TaskModel.id == id_task)
+    async def delete(self, id_subcategory: Id, id_task: Id) -> None:
+        stmt = select(TaskModel).where(
+            and_(
+                TaskModel.id == id_task,
+                TaskModel.id_subcategory == id_subcategory,
+            )
+        )
         task = (await self.session.execute(stmt)).scalar_one_or_none()
 
         if task:

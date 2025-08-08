@@ -7,12 +7,10 @@ from knowledge_base.domain.entities.task import Task
 
 class CreateTask(BaseModel):
     description: str
-    id_subcategory: Annotated[PositiveInt, Field(alias="idSubcategory")]
 
 
 class UpdateTask(BaseModel):
     description: str | None = None
-    id_subcategory: Annotated[PositiveInt | None, Field(default=None, alias="idSubcategory")]
 
 
 class OutTask(BaseModel):

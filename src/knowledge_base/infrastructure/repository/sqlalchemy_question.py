@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from knowledge_base.domain.entities.question import NewQuestion, Question
@@ -11,8 +11,13 @@ class SqlAlchemyQuestionRepository(QuestionRepository):
     def __init__(self, session: AsyncSession):
         self.session: AsyncSession = session
 
-    async def get(self, id_question: Id) -> Question | None:
-        stmt = select(QuestionModel).where(QuestionModel.id == id_question)
+    async def get(self, id_subcategory: Id, id_question: Id) -> Question | None:
+        stmt = select(QuestionModel).where(
+            and_(
+                QuestionModel.id == id_question,
+                QuestionModel.id_subcategory == id_subcategory,
+            )
+        )
         question = (await self.session.execute(stmt)).scalar_one_or_none()
 
         if question:
@@ -31,8 +36,13 @@ class SqlAlchemyQuestionRepository(QuestionRepository):
 
         return model_question.to_entity()
 
-    async def delete(self, id_question: Id) -> None:
-        stmt = select(QuestionModel).where(QuestionModel.id == id_question)
+    async def delete(self, id_subcategory: Id, id_question: Id) -> None:
+        stmt = select(QuestionModel).where(
+            and_(
+                QuestionModel.id == id_question,
+                QuestionModel.id_subcategory == id_subcategory,
+            )
+        )
         question = (await self.session.execute(stmt)).scalar_one_or_none()
 
         if question:

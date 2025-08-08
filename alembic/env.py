@@ -14,7 +14,7 @@ from knowledge_base.infrastructure.db.orm.source import SourceModel
 from knowledge_base.infrastructure.db.orm.task import TaskModel
 from knowledge_base.infrastructure.db.orm.category import CategoryModel
 from knowledge_base.infrastructure.db.orm.subcategory import SubCategoryModel
-from knowledge_base.infrastructure.db.orm.source import SourceModel
+from knowledge_base.infrastructure.db.orm.question import QuestionModel
 
 
 

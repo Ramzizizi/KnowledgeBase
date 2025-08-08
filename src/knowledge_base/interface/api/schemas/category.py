@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import BaseModel, Field, PositiveInt
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 
 from knowledge_base.domain.entities.category import Category
 from knowledge_base.interface.api.schemas.subcategory import DetailedOutSubCategory
@@ -17,6 +17,8 @@ class UpdateCategory(BaseModel):
 
 
 class OutCategory(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     id: PositiveInt
     title: Annotated[str, Field(min_length=1, max_length=50)]
     description: str | None
@@ -27,6 +29,8 @@ class OutCategory(BaseModel):
 
 
 class DetailedOutCategory(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     id: PositiveInt
     title: Annotated[str, Field(min_length=1, max_length=50)]
     description: str | None

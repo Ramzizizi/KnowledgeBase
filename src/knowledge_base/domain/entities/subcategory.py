@@ -12,9 +12,6 @@ class SubCategoryBase:
     def change_title(self, new_title: Title) -> None:
         self.title = new_title
 
-    def change_category(self, new_id_category: Id) -> None:
-        self.id_category = new_id_category
-
 
 @dataclass
 class NewSubCategory(SubCategoryBase): ...

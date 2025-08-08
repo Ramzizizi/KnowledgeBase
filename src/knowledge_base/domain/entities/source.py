@@ -12,9 +12,6 @@ class SourceBase:
     def change_link(self, link: Link) -> None:
         self.link = link
 
-    def change_subcategory(self, new_id_subcategory: Id) -> None:
-        self.id_subcategory = new_id_subcategory
-
 
 @dataclass
 class NewSource(SourceBase): ...

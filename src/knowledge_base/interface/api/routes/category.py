@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Path, status
 from pydantic import PositiveInt
 
 from knowledge_base.application.services.category_service import CategoryService
@@ -43,7 +43,7 @@ async def get_categories(
 
 
 @router.get(
-    path="/{id_category}",
+    path="/{idCategory}",
     status_code=status.HTTP_200_OK,
     response_model=DetailedOutCategory,
     responses={
@@ -51,7 +51,7 @@ async def get_categories(
     },
 )
 async def get_category(
-    id_category: PositiveInt,
+    id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     category_service: Annotated[CategoryService, Depends(get_category_service)],
     subcategory_service: Annotated[SubCategoryService, Depends(get_subcategory_service)],
     task_service: Annotated[TaskService, Depends(get_task_service)],
@@ -61,21 +61,21 @@ async def get_category(
     category = await category_service.get(id_category)
 
     schema_category = DetailedOutCategory.from_entity(category)
-    subcategories = [
+    schemas_subcategory = [
         DetailedOutSubCategory.from_entity(subcategory)
         for subcategory in await subcategory_service.list_by_category(id_category)
     ]
 
-    for subcategory in subcategories:
-        tasks = await task_service.list_by_subcategory(subcategory.id)
-        questions = await question_service.list_by_subcategory(subcategory.id)
-        sources = await source_service.list_by_subcategory(subcategory.id)
+    for schema_subcategory in schemas_subcategory:
+        tasks = await task_service.list_by_subcategory(schema_category.id, schema_subcategory.id)
+        questions = await question_service.list_by_subcategory(schema_category.id, schema_subcategory.id)
+        sources = await source_service.list_by_subcategory(schema_category.id, schema_subcategory.id)
 
-        subcategory.tasks = [OutTask.from_entity(task) for task in tasks]
-        subcategory.questions = [OutQuestion.from_entity(question) for question in questions]
-        subcategory.sources = [OutSource.from_entity(source) for source in sources]
+        schema_subcategory.tasks = [OutTask.from_entity(task) for task in tasks]
+        schema_subcategory.questions = [OutQuestion.from_entity(question) for question in questions]
+        schema_subcategory.sources = [OutSource.from_entity(source) for source in sources]
 
-        schema_category.subcategories.append(subcategory)
+        schema_category.subcategories.append(schema_subcategory)
 
     return schema_category
 
@@ -93,6 +93,7 @@ async def create_category(
     service: Annotated[CategoryService, Depends(get_category_service)],
 ) -> OutCategory:
     category = await service.create(**data_to_create.model_dump())
+
     return OutCategory.from_entity(category)
 
 
@@ -101,6 +102,7 @@ async def create_category(
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_404_NOT_FOUND: {"description": "Object not found."},
+        status.HTTP_409_CONFLICT: {"description": "Object has related data."},
     },
 )
 async def delete_category(

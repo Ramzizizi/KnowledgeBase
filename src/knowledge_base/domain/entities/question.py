@@ -16,9 +16,6 @@ class QuestionBase:
     def change_answer(self, new_answer: str | None) -> None:
         self.answer = new_answer
 
-    def change_subcategory(self, new_id_subcategory: Id) -> None:
-        self.id_subcategory = new_id_subcategory
-
 
 @dataclass
 class NewQuestion(QuestionBase): ...

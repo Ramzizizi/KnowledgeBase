@@ -10,65 +10,73 @@ class SubCategoryService:
     def __init__(self, uow: AbstractUoW):
         self.uow: AbstractUoW = uow
 
-    async def get(self, id_subcategory: int) -> SubCategory:
-        async with self.uow as uow:
-            id_object = Id(id_subcategory)
-            subcategory = await uow.subcategories.get(id_object)
+    async def get(self, id_category: int, id_subcategory: int) -> SubCategory:
+        id_object_category = Id(id_category)
+        id_object_subcategory = Id(id_subcategory)
 
+        async with self.uow as uow:
+            if await uow.categories.get(id_object_category) is None:
+                raise NotFound("Category not found.")
+
+            subcategory = await uow.subcategories.get(id_object_category, id_object_subcategory)
             if subcategory is None:
                 raise NotFound("Subcategory not found.")
 
         return subcategory
 
     async def create(self, id_category: int, title: str) -> SubCategory:
-        async with self.uow as uow:
-            id_object = Id(id_category)
-            title_object = Title(title)
+        id_object = Id(id_category)
+        title_object = Title(title)
 
+        async with self.uow as uow:
             if await uow.categories.get(id_object) is None:
                 raise NotFound("Category not found.")
 
             new_subcategory = NewSubCategory(id_category=id_object, title=title_object)
+
             return await uow.subcategories.save(new_subcategory)
 
-    async def update(self, id_subcategory: int, changes: dict[str, str | int]) -> SubCategory:
-        async with self.uow as uow:
-            id_object = Id(id_subcategory)
-            title_object = Title(changes["title"])
-            subcategory = await uow.subcategories.get(id_object)
+    async def update(self, id_category: int, id_subcategory: int, changes: dict[str, str | int]) -> SubCategory:
+        id_object_category = Id(id_category)
+        id_object_subcategory = Id(id_subcategory)
 
+        async with self.uow as uow:
+            if await uow.categories.get(id_object_category) is None:
+                raise NotFound("Category not found.")
+
+            subcategory = await uow.subcategories.get(id_object_category, id_object_subcategory)
             if subcategory is None:
                 raise NotFound("Subcategory not found.")
 
             if "title" in changes:
+                title_object = Title(changes["title"])
                 subcategory.change_title(title_object)
-
-            if "id_category" in changes:
-                id_category = Id(changes["id_category"])
-
-                if await uow.categories.get(id_category) is None:
-                    raise NotFound("Category not found.")
-
-                subcategory.change_category(id_category)
 
             return await uow.subcategories.save(subcategory)
 
-    async def delete(self, id_subcategory: int) -> None:
-        async with self.uow as uow:
-            policy = SubCategoryDeletionPolicy(uow.tasks, uow.sources, uow.questions)
-            id_object = Id(id_subcategory)
-            subcategory = await uow.subcategories.get(id_object)
+    async def delete(self, id_category: int, id_subcategory: int) -> None:
+        id_object_category = Id(id_category)
+        id_object_subcategory = Id(id_subcategory)
 
+        async with self.uow as uow:
+            if await uow.categories.get(id_object_category) is None:
+                raise NotFound("Category not found.")
+
+            subcategory = await uow.subcategories.get(id_object_category, id_object_subcategory)
             if subcategory is None:
                 raise NotFound("Subcategory not found.")
 
-            if not policy.can_delete(id_object):
+            policy = SubCategoryDeletionPolicy(uow.tasks, uow.sources, uow.questions)
+            if not policy.can_delete(id_object_subcategory):
                 raise HasRelatedData("The subcategory has related data.")
 
-            await uow.subcategories.delete(id_object)
+            await uow.subcategories.delete(id_object_category, id_object_subcategory)
 
     async def list_by_category(self, id_category: int) -> list[SubCategory]:
-        id_object = Id(id_category)
+        id_object_category = Id(id_category)
 
         async with self.uow as uow:
-            return await uow.subcategories.list_by_category(id_object)
+            if await uow.categories.get(id_object_category) is None:
+                raise NotFound("Category not found.")
+
+            return await uow.subcategories.list_by_category(id_object_category)

@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from knowledge_base.domain.entities.subcategory import NewSubCategory, SubCategory
@@ -11,8 +11,10 @@ class SqlAlchemySubCategoryRepository(SubCategoryRepository):
     def __init__(self, session: AsyncSession):
         self.session: AsyncSession = session
 
-    async def get(self, id_subcategory: Id) -> SubCategory | None:
-        stmt = select(SubCategoryModel).where(SubCategoryModel.id == id_subcategory)
+    async def get(self, id_category: Id, id_subcategory: Id) -> SubCategory | None:
+        stmt = select(SubCategoryModel).where(
+            and_(SubCategoryModel.id == id_subcategory, SubCategoryModel.id_category == id_category)
+        )
         subcategory = (await self.session.execute(stmt)).scalar_one_or_none()
 
         if subcategory:
@@ -31,8 +33,10 @@ class SqlAlchemySubCategoryRepository(SubCategoryRepository):
 
         return model_subcategory.to_entity()
 
-    async def delete(self, id_subcategory: Id) -> None:
-        stmt = select(SubCategoryModel).where(SubCategoryModel.id == id_subcategory)
+    async def delete(self, id_category: Id, id_subcategory: Id) -> None:
+        stmt = select(SubCategoryModel).where(
+            and_(SubCategoryModel.id == id_subcategory, SubCategoryModel.id_category == id_category)
+        )
         subcategory = (await self.session.execute(stmt)).scalar_one_or_none()
 
         if subcategory:
