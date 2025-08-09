@@ -12,6 +12,8 @@ app = FastAPI(
     title="Knowledge Base",
     default_response_class=ORJSONResponse,
     exception_handlers={DomainError: domain_error_handler},
+    docs_url="/api/docs",
+    openapi_url="/api/openapi.json",
 )
 
 
