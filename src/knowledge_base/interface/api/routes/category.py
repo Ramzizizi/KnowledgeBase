@@ -8,11 +8,17 @@ from knowledge_base.application.services.question_service import QuestionService
 from knowledge_base.application.services.source_service import SourceService
 from knowledge_base.application.services.subcategory_service import SubCategoryService
 from knowledge_base.application.services.task_service import TaskService
-from knowledge_base.interface.api.schemas.category import CreateCategory, DetailedOutCategory, OutCategory
+from knowledge_base.interface.api.schemas.category import (
+    CreateCategory,
+    DetailedOutCategory,
+    OutCategory,
+    UpdateCategory,
+)
 from knowledge_base.interface.api.schemas.question import OutQuestion
 from knowledge_base.interface.api.schemas.source import OutSource
 from knowledge_base.interface.api.schemas.subcategory import DetailedOutSubCategory
 from knowledge_base.interface.api.schemas.task import OutTask
+from knowledge_base.interface.api.schemas.utils import DetailedResponse
 from knowledge_base.interface.dependencies import (
     get_category_service,
     get_question_service,
@@ -45,7 +51,7 @@ async def get_categories(
 @router.get(
     path="/{idCategory}",
     status_code=status.HTTP_200_OK,
-    response_model=DetailedOutCategory,
+    response_model=DetailedResponse[DetailedOutCategory],
     responses={
         status.HTTP_404_NOT_FOUND: {"description": "Object not found."},
     },
@@ -57,7 +63,7 @@ async def get_category(
     task_service: Annotated[TaskService, Depends(get_task_service)],
     question_service: Annotated[QuestionService, Depends(get_question_service)],
     source_service: Annotated[SourceService, Depends(get_source_service)],
-) -> DetailedOutCategory:
+) -> DetailedResponse[DetailedOutCategory]:
     category = await category_service.get(id_category)
 
     schema_category = DetailedOutCategory.from_entity(category)
@@ -77,13 +83,13 @@ async def get_category(
 
         schema_category.subcategories.append(schema_subcategory)
 
-    return schema_category
+    return DetailedResponse(data=schema_category)
 
 
 @router.post(
     path="",
     status_code=status.HTTP_201_CREATED,
-    response_model=OutCategory,
+    response_model=DetailedResponse[OutCategory],
     responses={
         status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Incorrect values."},
     },
@@ -91,10 +97,28 @@ async def get_category(
 async def create_category(
     data_to_create: CreateCategory,
     service: Annotated[CategoryService, Depends(get_category_service)],
-) -> OutCategory:
+) -> DetailedResponse[OutCategory]:
     category = await service.create(**data_to_create.model_dump())
 
-    return OutCategory.from_entity(category)
+    return DetailedResponse(data=OutCategory.from_entity(category))
+
+
+@router.patch(
+    path="",
+    status_code=status.HTTP_200_OK,
+    response_model=DetailedResponse[OutCategory],
+    responses={
+        status.HTTP_404_NOT_FOUND: {"description": "Object not found."},
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Incorrect values."},
+    },
+)
+async def update_category(
+    data_to_update: UpdateCategory,
+    service: Annotated[CategoryService, Depends(get_category_service)],
+) -> DetailedResponse[OutCategory]:
+    category = await service.update(**data_to_update.model_dump())
+
+    return DetailedResponse(data=OutCategory.from_entity(category))
 
 
 @router.delete(

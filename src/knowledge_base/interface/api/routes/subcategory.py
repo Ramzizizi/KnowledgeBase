@@ -15,6 +15,7 @@ from knowledge_base.interface.api.schemas.subcategory import (
     UpdateSubCategory,
 )
 from knowledge_base.interface.api.schemas.task import CreateTask, OutTask, UpdateTask
+from knowledge_base.interface.api.schemas.utils import DetailedResponse
 from knowledge_base.interface.dependencies import (
     get_question_service,
     get_source_service,
@@ -51,7 +52,7 @@ async def get_subcategories(
 @router.get(
     path="/{idCategory}/subcategories/{idSubcategory}",
     status_code=status.HTTP_200_OK,
-    response_model=DetailedOutSubCategory,
+    response_model=DetailedResponse[DetailedOutSubCategory],
     tags=["Subcategories"],
 )
 async def get_subcategory(
@@ -61,7 +62,7 @@ async def get_subcategory(
     task_service: Annotated[TaskService, Depends(get_task_service)],
     question_service: Annotated[QuestionService, Depends(get_question_service)],
     source_service: Annotated[SourceService, Depends(get_source_service)],
-) -> DetailedOutSubCategory:
+) -> DetailedResponse[DetailedOutSubCategory]:
     subcategory = await subcategory_service.get(id_category, id_subcategory)
     tasks = await task_service.list_by_subcategory(id_category, id_subcategory)
     questions = await question_service.list_by_subcategory(id_category, id_subcategory)
@@ -72,29 +73,29 @@ async def get_subcategory(
     schema_subcategory.questions = [OutQuestion.from_entity(question) for question in questions]
     schema_subcategory.sources = [OutSource.from_entity(source) for source in sources]
 
-    return schema_subcategory
+    return DetailedResponse(data=schema_subcategory)
 
 
 @router.post(
     path="/{idCategory}/subcategories",
     status_code=status.HTTP_201_CREATED,
-    response_model=OutSubCategory,
+    response_model=DetailedResponse[OutSubCategory],
     tags=["Subcategories"],
 )
 async def create_subcategory(
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     data_to_create: CreateSubCategory,
     service: Annotated[SubCategoryService, Depends(get_subcategory_service)],
-) -> OutSubCategory:
+) -> DetailedResponse[OutSubCategory]:
     subcategory = await service.create(id_category, **data_to_create.model_dump())
 
-    return OutSubCategory.from_entity(subcategory)
+    return DetailedResponse(data=OutSubCategory.from_entity(subcategory))
 
 
 @router.patch(
     path="/{idCategory}/subcategories/{idSubcategory}",
     status_code=status.HTTP_200_OK,
-    response_model=OutSubCategory,
+    response_model=DetailedResponse[OutSubCategory],
     responses={
         status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Incorrect values."},
     },
@@ -105,10 +106,10 @@ async def update_subcategory(
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     data_to_update: UpdateSubCategory,
     service: Annotated[SubCategoryService, Depends(get_subcategory_service)],
-) -> OutSubCategory:
+) -> DetailedResponse[OutSubCategory]:
     subcategory = await service.update(id_category, id_subcategory, **data_to_update.model_dump())
 
-    return OutSubCategory.from_entity(subcategory)
+    return DetailedResponse(data=OutSubCategory.from_entity(subcategory))
 
 
 @router.delete(
@@ -150,7 +151,7 @@ async def get_tasks_subcategory(
 @router.get(
     path="/{idCategory}/subcategories/{idSubcategory}/tasks/{idTask}",
     status_code=status.HTTP_200_OK,
-    response_model=OutTask,
+    response_model=DetailedResponse[OutTask],
     tags=["Task"],
 )
 async def get_task_subcategory(
@@ -158,16 +159,16 @@ async def get_task_subcategory(
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[TaskService, Depends(get_task_service)],
-) -> OutTask:
+) -> DetailedResponse[OutTask]:
     task = await service.get(id_category, id_subcategory, id_task)
 
-    return OutTask.from_entity(task)
+    return DetailedResponse(data=OutTask.from_entity(task))
 
 
 @router.post(
     path="/{idCategory}/subcategories/{idSubcategory}/tasks/",
     status_code=status.HTTP_201_CREATED,
-    response_model=OutTask,
+    response_model=DetailedResponse[OutTask],
     tags=["Task"],
 )
 async def create_task_subcategory(
@@ -175,16 +176,16 @@ async def create_task_subcategory(
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[TaskService, Depends(get_task_service)],
-) -> OutTask:
+) -> DetailedResponse[OutTask]:
     task = await service.create(id_category, id_subcategory, **data_to_create.model_dump())
 
-    return OutTask.from_entity(task)
+    return DetailedResponse(data=OutTask.from_entity(task))
 
 
 @router.patch(
     path="/{idCategory}/subcategories/{idSubcategory}/tasks/{idTask}",
     status_code=status.HTTP_200_OK,
-    response_model=OutTask,
+    response_model=DetailedResponse[OutTask],
     tags=["Task"],
 )
 async def update_task_subcategory(
@@ -193,10 +194,10 @@ async def update_task_subcategory(
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[TaskService, Depends(get_task_service)],
-) -> OutTask:
+) -> DetailedResponse[OutTask]:
     task = await service.update(id_category, id_subcategory, id_task, **data_to_update.model_dump())
 
-    return OutTask.from_entity(task)
+    return DetailedResponse(data=OutTask.from_entity(task))
 
 
 @router.delete(
@@ -235,7 +236,7 @@ async def get_questions_subcategory(
 @router.get(
     path="/{idCategory}/subcategories/{idSubcategory}/questions/{idQuestions}",
     status_code=status.HTTP_200_OK,
-    response_model=OutQuestion,
+    response_model=DetailedResponse[OutQuestion],
     tags=["Question"],
 )
 async def get_question_subcategory(
@@ -243,16 +244,16 @@ async def get_question_subcategory(
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[QuestionService, Depends(get_question_service)],
-) -> OutQuestion:
+) -> DetailedResponse[OutQuestion]:
     question = await service.get(id_category, id_subcategory, id_questions)
 
-    return OutQuestion.from_entity(question)
+    return DetailedResponse(data=OutQuestion.from_entity(question))
 
 
 @router.post(
     path="/{idCategory}/subcategories/{idSubcategory}/questions/",
     status_code=status.HTTP_201_CREATED,
-    response_model=OutQuestion,
+    response_model=DetailedResponse[OutQuestion],
     tags=["Question"],
 )
 async def create_question_subcategory(
@@ -260,16 +261,16 @@ async def create_question_subcategory(
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[QuestionService, Depends(get_question_service)],
-) -> OutQuestion:
+) -> DetailedResponse[OutQuestion]:
     question = await service.create(id_category, id_subcategory, **data_to_create.model_dump())
 
-    return OutQuestion.from_entity(question)
+    return DetailedResponse(data=OutQuestion.from_entity(question))
 
 
 @router.patch(
     path="/{idCategory}/subcategories/{idSubcategory}/questions/{idQuestions}",
     status_code=status.HTTP_200_OK,
-    response_model=OutQuestion,
+    response_model=DetailedResponse[OutQuestion],
     tags=["Question"],
 )
 async def update_question_subcategory(
@@ -278,10 +279,10 @@ async def update_question_subcategory(
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[QuestionService, Depends(get_question_service)],
-) -> OutQuestion:
+) -> DetailedResponse[OutQuestion]:
     task = await service.update(id_category, id_subcategory, id_questions, **data_to_update.model_dump())
 
-    return OutQuestion.from_entity(task)
+    return DetailedResponse(data=OutQuestion.from_entity(task))
 
 
 @router.delete(
@@ -320,7 +321,7 @@ async def get_sources_subcategory(
 @router.get(
     path="/{idCategory}/subcategories/{idSubcategory}/sources/{idSource}",
     status_code=status.HTTP_200_OK,
-    response_model=OutSource,
+    response_model=DetailedResponse[OutSource],
     tags=["Source"],
 )
 async def get_source_subcategory(
@@ -328,16 +329,16 @@ async def get_source_subcategory(
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[SourceService, Depends(get_source_service)],
-) -> OutSource:
+) -> DetailedResponse[OutSource]:
     source = await service.get(id_category, id_subcategory, id_source)
 
-    return OutSource.from_entity(source)
+    return DetailedResponse(data=OutSource.from_entity(source))
 
 
 @router.post(
     path="/{idCategory}/subcategories/{idSubcategory}/sources/",
     status_code=status.HTTP_201_CREATED,
-    response_model=OutSource,
+    response_model=DetailedResponse[OutSource],
     tags=["Source"],
 )
 async def create_source_subcategory(
@@ -345,16 +346,16 @@ async def create_source_subcategory(
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[SourceService, Depends(get_source_service)],
-) -> OutSource:
+) -> DetailedResponse[OutSource]:
     question = await service.create(id_category, id_subcategory, **data_to_create.model_dump())
 
-    return OutSource.from_entity(question)
+    return DetailedResponse(data=OutSource.from_entity(question))
 
 
 @router.patch(
     path="/{idCategory}/subcategories/{idSubcategory}/sources/{idSource}",
     status_code=status.HTTP_200_OK,
-    response_model=OutSource,
+    response_model=DetailedResponse[OutSource],
     tags=["Source"],
 )
 async def update_source_subcategory(
@@ -363,10 +364,10 @@ async def update_source_subcategory(
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[SourceService, Depends(get_source_service)],
-) -> OutSource:
+) -> DetailedResponse[OutSource]:
     source = await service.update(id_category, id_subcategory, id_source, **data_to_update.model_dump())
 
-    return OutSource.from_entity(source)
+    return DetailedResponse(data=OutSource.from_entity(source))
 
 
 @router.delete(
