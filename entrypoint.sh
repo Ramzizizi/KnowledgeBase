@@ -16,12 +16,12 @@ if [[ -f "${BASE_DIR}/.env" ]]; then
 fi
 
 
-# CHECK POETRY IS INSTALL
-command -v poetry >/dev/null 2>&1 || { echo "poetry not found"; exit 127; }
+# ACTIVATE VENV
+source .venv/bin/activate
 
 # RUN ALEMBIC MIGRATIONS
 echo "[entrypoint] Applying DB migrations..."
-poetry run alembic upgrade head
+alembic upgrade head
 
 # LOAD ENVS PARAMS FROM ".env" FOR UVICORN
 APP_IMPORT="${APP_IMPORT:-knowledge_base.main:app}"
@@ -32,4 +32,4 @@ WORKERS="${WORKERS:-4}"
 # START APP
 cd "${APP_DIR}"
 echo "[entrypoint] Starting Uvicorn: ${APP_IMPORT} on ${HOST}:${PORT} (workers=${WORKERS})"
-exec poetry run uvicorn "${APP_IMPORT}" --host "${HOST}" --port "${PORT}" --workers "${WORKERS}"
+uvicorn "${APP_IMPORT}" --host "${HOST}" --port "${PORT}" --workers "${WORKERS}"
