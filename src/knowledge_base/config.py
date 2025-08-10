@@ -9,11 +9,6 @@ class SettingsApp(BaseSettings):
     DB_PORT: int = 5432
     DB_URL: str = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-    APP_HOST: str = "0.0.0.0"
-    APP_PORT: int = 8000
-    USE_RELOAD: bool = True
-
-
 def get_settings_app() -> SettingsApp:
     return SettingsApp()
 

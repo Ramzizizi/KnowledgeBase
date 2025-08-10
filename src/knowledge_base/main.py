@@ -1,9 +1,7 @@
-import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
-from knowledge_base.config import settings_app
 from knowledge_base.domain.errors import DomainError
 from knowledge_base.interface.api import router as interface_router
 from knowledge_base.interface.api.handlers import domain_error_handler
@@ -26,6 +24,3 @@ app.add_middleware(
 )
 
 app.include_router(interface_router)
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host=settings_app.APP_HOST, port=settings_app.APP_PORT, reload=settings_app.USE_RELOAD)

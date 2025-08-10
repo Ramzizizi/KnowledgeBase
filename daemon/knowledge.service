@@ -1,0 +1,12 @@
+[Unit]
+Description=KnowledgeBase
+
+[Service]
+User=root
+WorkingDirectory=/root/KnowledgeBase
+ExecStart=/root/KnowledgeBase/entrypoint.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
