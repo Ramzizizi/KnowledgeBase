@@ -7,9 +7,13 @@ from knowledge_base.domain.entities.category import Category, NewCategory
 from knowledge_base.domain.repository.category_repository import CategoryRepository
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.infrastructure.db.orm.category import CategoryModel
+from knowledge_base.infrastructure.paginator import SqlAlchemyPaginator
 
 
-class SqlAlchemyCategoryListing[MappingCategory: CategoryModel](CategoryListingPort[MappingCategory]):
+class SqlAlchemyCategoryListing(CategoryListingPort):
+    def __init__(self, paginator: SqlAlchemyPaginator[CategoryModel]):
+        self.paginator: SqlAlchemyPaginator[CategoryModel] = paginator
+
     async def list(self, pagination_options: PaginationOptions) -> PaginationResult[Category]:
         stmt = select(CategoryModel)
         result = await self.paginator.paginate(stmt, pagination_options)

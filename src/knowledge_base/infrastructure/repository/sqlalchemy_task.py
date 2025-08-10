@@ -7,9 +7,13 @@ from knowledge_base.domain.entities.task import NewTask, Task
 from knowledge_base.domain.repository.task_repository import TaskRepository
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.infrastructure.db.orm.task import TaskModel
+from knowledge_base.infrastructure.paginator import SqlAlchemyPaginator
 
 
-class SqlAlchemyTaskListing[MappingTask: TaskModel](TaskListingPort[MappingTask]):
+class SqlAlchemyTaskListing(TaskListingPort):
+    def __init__(self, paginator: SqlAlchemyPaginator[TaskModel]):
+        self.paginator: SqlAlchemyPaginator[TaskModel] = paginator
+
     async def list_by_subcategory(
         self, id_subcategory: Id, pagination_options: PaginationOptions
     ) -> PaginationResult[Task]:

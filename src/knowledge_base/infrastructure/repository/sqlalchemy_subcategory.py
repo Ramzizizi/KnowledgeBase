@@ -7,9 +7,13 @@ from knowledge_base.domain.entities.subcategory import NewSubCategory, SubCatego
 from knowledge_base.domain.repository.subcategory_repository import SubCategoryRepository
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.infrastructure.db.orm.subcategory import SubCategoryModel
+from knowledge_base.infrastructure.paginator import SqlAlchemyPaginator
 
 
-class SqlAlchemySubCategoryListing[MappingSubCategory: SubCategoryModel](SubCategoryListingPort[MappingSubCategory]):
+class SqlAlchemySubCategoryListing(SubCategoryListingPort):
+    def __init__(self, paginator: SqlAlchemyPaginator[SubCategoryModel]):
+        self.paginator: SqlAlchemyPaginator[SubCategoryModel] = paginator
+
     async def list_by_category(
         self, id_category: Id, pagination_options: PaginationOptions
     ) -> PaginationResult[SubCategory]:

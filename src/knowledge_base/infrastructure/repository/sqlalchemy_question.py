@@ -7,9 +7,13 @@ from knowledge_base.domain.entities.question import NewQuestion, Question
 from knowledge_base.domain.repository.question_repository import QuestionRepository
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.infrastructure.db.orm.question import QuestionModel
+from knowledge_base.infrastructure.paginator import SqlAlchemyPaginator
 
 
-class SqlAlchemyQuestionListing[MappingQuestion: QuestionModel](QuestionListingPort[MappingQuestion]):
+class SqlAlchemyQuestionListing(QuestionListingPort):
+    def __init__(self, paginator: SqlAlchemyPaginator[QuestionModel]):
+        self.paginator: SqlAlchemyPaginator[QuestionModel] = paginator
+
     async def list_by_subcategory(
         self, id_subcategory: Id, pagination_options: PaginationOptions
     ) -> PaginationResult[Question]:

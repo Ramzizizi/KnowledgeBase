@@ -1,7 +1,6 @@
 from abc import abstractmethod
 from contextlib import AbstractAsyncContextManager
 from types import TracebackType
-from typing import TypeVar
 
 from knowledge_base.application.services.category_queries import CategoryListingPort
 from knowledge_base.application.services.question_queries import QuestionListingPort
@@ -14,12 +13,6 @@ from knowledge_base.domain.repository.source_repository import SourceRepository
 from knowledge_base.domain.repository.subcategory_repository import SubCategoryRepository
 from knowledge_base.domain.repository.task_repository import TaskRepository
 
-MappingCategory = TypeVar("MappingCategory")
-MappingQuestion = TypeVar("MappingQuestion")
-MappingSource = TypeVar("MappingSource")
-MappingSubCategory = TypeVar("MappingSubCategory")
-MappingTask = TypeVar("MappingTask")
-
 
 class AbstractUoW(AbstractAsyncContextManager["AbstractUoW"]):
     categories: CategoryRepository
@@ -28,11 +21,11 @@ class AbstractUoW(AbstractAsyncContextManager["AbstractUoW"]):
     tasks: TaskRepository
     sources: SourceRepository
 
-    category_queries: CategoryListingPort[MappingCategory]
-    question_queries: QuestionListingPort[MappingQuestion]
-    source_queries: SourceListingPort[MappingSource]
-    subcategory_queries: SubCategoryListingPort[MappingSubCategory]
-    task_queries: TaskListingPort[MappingTask]
+    category_queries: CategoryListingPort
+    question_queries: QuestionListingPort
+    source_queries: SourceListingPort
+    subcategory_queries: SubCategoryListingPort
+    task_queries: TaskListingPort
 
     async def __aenter__(
         self,

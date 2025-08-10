@@ -7,9 +7,13 @@ from knowledge_base.domain.entities.source import NewSource, Source
 from knowledge_base.domain.repository.source_repository import SourceRepository
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.infrastructure.db.orm.source import SourceModel
+from knowledge_base.infrastructure.paginator import SqlAlchemyPaginator
 
 
-class SqlAlchemySourceListing[MappingSource: SourceModel](SourceListingPort[MappingSource]):
+class SqlAlchemySourceListing(SourceListingPort):
+    def __init__(self, paginator: SqlAlchemyPaginator[SourceModel]):
+        self.paginator: SqlAlchemyPaginator[SourceModel] = paginator
+
     async def list_by_subcategory(
         self, id_subcategory: Id, pagination_options: PaginationOptions
     ) -> PaginationResult[Source]:
