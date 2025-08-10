@@ -1,10 +1,22 @@
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
+from knowledge_base.application.schemas.pagination import PaginationOptions, PaginationResult
+from knowledge_base.application.services.subcategory_queries import SubCategoryListingPort
 from knowledge_base.domain.entities.subcategory import NewSubCategory, SubCategory
 from knowledge_base.domain.repository.subcategory_repository import SubCategoryRepository
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.infrastructure.db.orm.subcategory import SubCategoryModel
+
+
+class SqlAlchemySubCategoryListing[MappingSubCategory: SubCategoryModel](SubCategoryListingPort[MappingSubCategory]):
+    async def list_by_category(
+        self, id_category: Id, pagination_options: PaginationOptions
+    ) -> PaginationResult[SubCategory]:
+        stmt = select(SubCategoryModel).where(SubCategoryModel.id_category == id_category)
+        result = await self.paginator.paginate(stmt, pagination_options)
+
+        return PaginationResult(total=result["total"], items=list(map(lambda m: m.to_entity(), result["items"])))
 
 
 class SqlAlchemySubCategoryRepository(SubCategoryRepository):
@@ -41,12 +53,6 @@ class SqlAlchemySubCategoryRepository(SubCategoryRepository):
 
         if subcategory:
             await self.session.delete(subcategory)
-
-    async def list_by_category(self, id_category: Id) -> list[SubCategory]:
-        stmt = select(SubCategoryModel).where(SubCategoryModel.id_category == id_category)
-        subcategories = (await self.session.execute(stmt)).scalars()
-
-        return [subcategory.to_entity() for subcategory in subcategories]
 
     async def exists_by_category(self, id_category: Id) -> bool:
         stmt = select(SubCategoryModel).where(SubCategoryModel.id_category == id_category)

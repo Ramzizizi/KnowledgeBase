@@ -1,3 +1,4 @@
+from knowledge_base.application.schemas.pagination import PaginationOptions, PaginationResult
 from knowledge_base.application.uow import AbstractUoW
 from knowledge_base.domain.entities.subcategory import NewSubCategory, SubCategory
 from knowledge_base.domain.errors import HasRelatedData, NotFound
@@ -72,11 +73,13 @@ class SubCategoryService:
 
             await uow.subcategories.delete(id_object_category, id_object_subcategory)
 
-    async def list_by_category(self, id_category: int) -> list[SubCategory]:
+    async def list_by_category(
+        self, id_category: int, pagination_options: PaginationOptions
+    ) -> PaginationResult[SubCategory]:
         id_object_category = Id(id_category)
 
         async with self.uow as uow:
             if await uow.categories.get(id_object_category) is None:
                 raise NotFound("Category not found.")
 
-            return await uow.subcategories.list_by_category(id_object_category)
+            return await uow.subcategory_queries.list_by_category(id_object_category, pagination_options)

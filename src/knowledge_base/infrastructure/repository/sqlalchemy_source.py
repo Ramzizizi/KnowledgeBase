@@ -1,10 +1,22 @@
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
+from knowledge_base.application.schemas.pagination import PaginationOptions, PaginationResult
+from knowledge_base.application.services.source_queries import SourceListingPort
 from knowledge_base.domain.entities.source import NewSource, Source
 from knowledge_base.domain.repository.source_repository import SourceRepository
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.infrastructure.db.orm.source import SourceModel
+
+
+class SqlAlchemySourceListing[MappingSource: SourceModel](SourceListingPort[MappingSource]):
+    async def list_by_subcategory(
+        self, id_subcategory: Id, pagination_options: PaginationOptions
+    ) -> PaginationResult[Source]:
+        stmt = select(SourceModel).where(SourceModel.id_subcategory == id_subcategory)
+        result = await self.paginator.paginate(stmt, pagination_options)
+
+        return PaginationResult(total=result["total"], items=list(map(lambda m: m.to_entity(), result["items"])))
 
 
 class SqlAlchemySourceRepository(SourceRepository):
@@ -47,12 +59,6 @@ class SqlAlchemySourceRepository(SourceRepository):
 
         if source:
             await self.session.delete(source)
-
-    async def list_by_subcategory(self, id_subcategory: Id) -> list[Source]:
-        stmt = select(SourceModel).where(SourceModel.id_subcategory == id_subcategory)
-        sources = (await self.session.execute(stmt)).scalars()
-
-        return [source.to_entity() for source in sources]
 
     async def exists_by_subcategory(self, id_subcategory: Id) -> bool:
         stmt = select(SourceModel).where(SourceModel.id_subcategory == id_subcategory)

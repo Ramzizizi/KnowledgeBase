@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, status
 
+from knowledge_base.application.schemas.pagination import PaginationOptions, PaginationResult
 from knowledge_base.application.services.question_service import QuestionService
 from knowledge_base.application.services.source_service import SourceService
 from knowledge_base.application.services.subcategory_service import SubCategoryService
@@ -10,13 +11,13 @@ from knowledge_base.interface.api.schemas.question import CreateQuestion, OutQue
 from knowledge_base.interface.api.schemas.source import CreateSource, OutSource, UpdateSource
 from knowledge_base.interface.api.schemas.subcategory import (
     CreateSubCategory,
-    DetailedOutSubCategory,
     OutSubCategory,
     UpdateSubCategory,
 )
 from knowledge_base.interface.api.schemas.task import CreateTask, OutTask, UpdateTask
 from knowledge_base.interface.api.schemas.utils import DetailedResponse
 from knowledge_base.interface.dependencies import (
+    get_pagination,
     get_question_service,
     get_source_service,
     get_subcategory_service,
@@ -37,41 +38,35 @@ router = APIRouter(
 @router.get(
     path="/{idCategory}/subcategories",
     status_code=status.HTTP_200_OK,
-    response_model=list[OutSubCategory],
+    response_model=PaginationResult[OutSubCategory],
     tags=["Subcategories"],
 )
 async def get_subcategories(
+    pagination_options: Annotated[PaginationOptions, Depends(get_pagination)],
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     service: Annotated[SubCategoryService, Depends(get_subcategory_service)],
-) -> list[OutSubCategory]:
-    subcategories = await service.list_by_category(id_category)
+) -> PaginationResult[OutSubCategory]:
+    subcategories = await service.list_by_category(id_category, pagination_options)
 
-    return [OutSubCategory.from_entity(subcategory) for subcategory in subcategories]
+    return PaginationResult(  # noqa
+        total=subcategories["total"],
+        items=[OutSubCategory.from_entity(subcategory) for subcategory in subcategories["items"]],
+    )
 
 
 @router.get(
     path="/{idCategory}/subcategories/{idSubcategory}",
     status_code=status.HTTP_200_OK,
-    response_model=DetailedResponse[DetailedOutSubCategory],
+    response_model=DetailedResponse[OutSubCategory],
     tags=["Subcategories"],
 )
 async def get_subcategory(
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
-    subcategory_service: Annotated[SubCategoryService, Depends(get_subcategory_service)],
-    task_service: Annotated[TaskService, Depends(get_task_service)],
-    question_service: Annotated[QuestionService, Depends(get_question_service)],
-    source_service: Annotated[SourceService, Depends(get_source_service)],
-) -> DetailedResponse[DetailedOutSubCategory]:
-    subcategory = await subcategory_service.get(id_category, id_subcategory)
-    tasks = await task_service.list_by_subcategory(id_category, id_subcategory)
-    questions = await question_service.list_by_subcategory(id_category, id_subcategory)
-    sources = await source_service.list_by_subcategory(id_category, id_subcategory)
-
-    schema_subcategory = DetailedOutSubCategory.from_entity(subcategory)
-    schema_subcategory.tasks = [OutTask.from_entity(task) for task in tasks]
-    schema_subcategory.questions = [OutQuestion.from_entity(question) for question in questions]
-    schema_subcategory.sources = [OutSource.from_entity(source) for source in sources]
+    service: Annotated[SubCategoryService, Depends(get_subcategory_service)],
+) -> DetailedResponse[OutSubCategory]:
+    subcategory = await service.get(id_category, id_subcategory)
+    schema_subcategory = OutSubCategory.from_entity(subcategory)
 
     return DetailedResponse(data=schema_subcategory)
 
@@ -135,17 +130,18 @@ async def delete_subcategory(
 @router.get(
     path="/{idCategory}/subcategories/{idSubcategory}/tasks",
     status_code=status.HTTP_200_OK,
-    response_model=list[OutTask],
+    response_model=PaginationResult[OutTask],
     tags=["Task"],
 )
 async def get_tasks_subcategory(
+    pagination_options: Annotated[PaginationOptions, Depends(get_pagination)],
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[TaskService, Depends(get_task_service)],
-) -> list[OutTask]:
-    tasks = await service.list_by_subcategory(id_category, id_subcategory)
+) -> PaginationResult[OutTask]:
+    tasks = await service.list_by_subcategory(id_category, id_subcategory, pagination_options)
 
-    return [OutTask.from_entity(task) for task in tasks]
+    return PaginationResult(total=tasks["total"], items=[OutTask.from_entity(task) for task in tasks["items"]])  # noqa
 
 
 @router.get(
@@ -220,17 +216,20 @@ async def delete_task_subcategory(
 @router.get(
     path="/{idCategory}/subcategories/{idSubcategory}/questions",
     status_code=status.HTTP_200_OK,
-    response_model=list[OutQuestion],
+    response_model=PaginationResult[OutQuestion],
     tags=["Question"],
 )
 async def get_questions_subcategory(
+    pagination_options: Annotated[PaginationOptions, Depends(get_pagination)],
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[QuestionService, Depends(get_question_service)],
-) -> list[OutQuestion]:
-    questions = await service.list_by_subcategory(id_category, id_subcategory)
+) -> PaginationResult[OutQuestion]:
+    questions = await service.list_by_subcategory(id_category, id_subcategory, pagination_options)
 
-    return [OutQuestion.from_entity(question) for question in questions]
+    return PaginationResult(  # noqa
+        total=questions["total"], items=[OutQuestion.from_entity(question) for question in questions["items"]]
+    )
 
 
 @router.get(
@@ -305,17 +304,20 @@ async def delete_question_subcategory(
 @router.get(
     path="/{idCategory}/subcategories/{idSubcategory}/sources",
     status_code=status.HTTP_200_OK,
-    response_model=list[OutSource],
+    response_model=PaginationResult[OutSource],
     tags=["Source"],
 )
 async def get_sources_subcategory(
+    pagination_options: Annotated[PaginationOptions, Depends(get_pagination)],
     id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[SourceService, Depends(get_source_service)],
-) -> list[OutSource]:
-    sources = await service.list_by_subcategory(id_category, id_subcategory)
+) -> PaginationResult[OutSource]:
+    sources = await service.list_by_subcategory(id_category, id_subcategory, pagination_options)
 
-    return [OutSource.from_entity(source) for source in sources]
+    return PaginationResult(  # noqa
+        total=sources["total"], items=[OutSource.from_entity(source) for source in sources["items"]]
+    )
 
 
 @router.get(

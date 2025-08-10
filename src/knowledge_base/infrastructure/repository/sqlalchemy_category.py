@@ -1,10 +1,20 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
+from knowledge_base.application.schemas.pagination import PaginationOptions, PaginationResult
+from knowledge_base.application.services.category_queries import CategoryListingPort
 from knowledge_base.domain.entities.category import Category, NewCategory
 from knowledge_base.domain.repository.category_repository import CategoryRepository
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.infrastructure.db.orm.category import CategoryModel
+
+
+class SqlAlchemyCategoryListing[MappingCategory: CategoryModel](CategoryListingPort[MappingCategory]):
+    async def list(self, pagination_options: PaginationOptions) -> PaginationResult[Category]:
+        stmt = select(CategoryModel)
+        result = await self.paginator.paginate(stmt, pagination_options)
+
+        return PaginationResult(total=result["total"], items=list(map(lambda m: m.to_entity(), result["items"])))
 
 
 class SqlAlchemyCategoryRepository(CategoryRepository):
@@ -19,12 +29,6 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
             return category.to_entity()
 
         return None
-
-    async def list(self) -> list[Category]:
-        stmt = select(CategoryModel)
-        categories = (await self.session.execute(stmt)).scalars()
-
-        return [category.to_entity() for category in categories]
 
     async def save(self, category: NewCategory | Category) -> Category:
         if isinstance(category, NewCategory):

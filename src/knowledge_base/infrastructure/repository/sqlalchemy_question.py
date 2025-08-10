@@ -1,10 +1,22 @@
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
+from knowledge_base.application.schemas.pagination import PaginationOptions, PaginationResult
+from knowledge_base.application.services.question_queries import QuestionListingPort
 from knowledge_base.domain.entities.question import NewQuestion, Question
 from knowledge_base.domain.repository.question_repository import QuestionRepository
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.infrastructure.db.orm.question import QuestionModel
+
+
+class SqlAlchemyQuestionListing[MappingQuestion: QuestionModel](QuestionListingPort[MappingQuestion]):
+    async def list_by_subcategory(
+        self, id_subcategory: Id, pagination_options: PaginationOptions
+    ) -> PaginationResult[Question]:
+        stmt = select(QuestionModel).where(QuestionModel.id_subcategory == id_subcategory)
+        result = await self.paginator.paginate(stmt, pagination_options)
+
+        return PaginationResult(total=result["total"], items=list(map(lambda m: m.to_entity(), result["items"])))
 
 
 class SqlAlchemyQuestionRepository(QuestionRepository):
@@ -47,12 +59,6 @@ class SqlAlchemyQuestionRepository(QuestionRepository):
 
         if question:
             await self.session.delete(question)
-
-    async def list_by_subcategory(self, id_subcategory: Id) -> list[Question]:
-        stmt = select(QuestionModel).where(QuestionModel.id_subcategory == id_subcategory)
-        questions = (await self.session.execute(stmt)).scalars()
-
-        return [question.to_entity() for question in questions]
 
     async def exists_by_subcategory(self, id_subcategory: Id) -> bool:
         stmt = select(QuestionModel).where(QuestionModel.id_subcategory == id_subcategory)

@@ -1,3 +1,4 @@
+from knowledge_base.application.schemas.pagination import PaginationOptions, PaginationResult
 from knowledge_base.application.uow import AbstractUoW
 from knowledge_base.domain.entities.category import Category, NewCategory
 from knowledge_base.domain.errors import HasRelatedData, NotFound
@@ -20,9 +21,9 @@ class CategoryService:
 
         return category
 
-    async def list(self) -> list[Category]:
+    async def list(self, pagination_options: PaginationOptions) -> PaginationResult[Category]:
         async with self.uow as uow:
-            return await uow.categories.list()
+            return await uow.category_queries.list(pagination_options)
 
     async def create(self, title: str, description: str) -> Category:
         async with self.uow as uow:

@@ -1,10 +1,22 @@
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
+from knowledge_base.application.schemas.pagination import PaginationOptions, PaginationResult
+from knowledge_base.application.services.task_queries import TaskListingPort
 from knowledge_base.domain.entities.task import NewTask, Task
 from knowledge_base.domain.repository.task_repository import TaskRepository
 from knowledge_base.domain.value_objects.id import Id
 from knowledge_base.infrastructure.db.orm.task import TaskModel
+
+
+class SqlAlchemyTaskListing[MappingTask: TaskModel](TaskListingPort[MappingTask]):
+    async def list_by_subcategory(
+        self, id_subcategory: Id, pagination_options: PaginationOptions
+    ) -> PaginationResult[Task]:
+        stmt = select(TaskModel).where(TaskModel.id_subcategory == id_subcategory)
+        result = await self.paginator.paginate(stmt, pagination_options)
+
+        return PaginationResult(total=result["total"], items=list(map(lambda m: m.to_entity(), result["items"])))
 
 
 class SqlAlchemyTaskRepository(TaskRepository):
@@ -48,12 +60,6 @@ class SqlAlchemyTaskRepository(TaskRepository):
 
         if task:
             await self.session.delete(task)
-
-    async def list_by_subcategory(self, id_subcategory: Id) -> list[Task]:
-        stmt = select(TaskModel).where(TaskModel.id_subcategory == id_subcategory)
-        tasks = (await self.session.execute(stmt)).scalars()
-
-        return [task.to_entity() for task in tasks]
 
     async def exists_by_subcategory(self, id_subcategory: Id) -> bool:
         stmt = select(TaskModel).where(TaskModel.id_subcategory == id_subcategory)
