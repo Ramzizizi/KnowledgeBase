@@ -1,3 +1,5 @@
+import asyncio
+
 from knowledge_base.domain.repository.question_repository import QuestionRepository
 from knowledge_base.domain.repository.source_repository import SourceRepository
 from knowledge_base.domain.repository.task_repository import TaskRepository
@@ -11,8 +13,10 @@ class SubCategoryDeletionPolicy:
         self.question: QuestionRepository = question
 
     async def can_delete(self, id_subcategory: Id) -> bool:
-        return not (
-            await self.task.exists_by_subcategory(id_subcategory)
-            or await self.source.exists_by_subcategory(id_subcategory)
-            or await self.question.exists_by_subcategory(id_subcategory)
+        is_task_exist, is_source_exist, is_question_exist = await asyncio.gather(
+            self.task.exists_by_subcategory(id_subcategory),
+            self.source.exists_by_subcategory(id_subcategory),
+            self.question.exists_by_subcategory(id_subcategory),
         )
+
+        return not any((is_task_exist, is_source_exist, is_question_exist))
