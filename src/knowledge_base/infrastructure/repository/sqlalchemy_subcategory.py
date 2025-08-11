@@ -41,11 +41,11 @@ class SqlAlchemySubCategoryRepository(SubCategoryRepository):
     async def save(self, subcategory: NewSubCategory | SubCategory) -> SubCategory:
         if isinstance(subcategory, NewSubCategory):
             model_subcategory = SubCategoryModel.from_new_entity(subcategory)
+            self.session.add(model_subcategory)
+            await self.session.flush([model_subcategory])
         else:
-            model_subcategory = SubCategoryModel.from_entity(subcategory)
-
-        self.session.add(model_subcategory)
-        await self.session.flush([model_subcategory])
+            model_subcategory = await self.session.get_one(SubCategoryModel, int(subcategory.id))
+            model_subcategory.title = str(subcategory.title)
 
         return model_subcategory.to_entity()
 

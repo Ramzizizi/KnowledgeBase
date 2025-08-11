@@ -78,7 +78,7 @@ async def create_category(
 
 
 @router.patch(
-    path="",
+    path="/{idCategory}",
     status_code=status.HTTP_200_OK,
     response_model=DetailedResponse[OutCategory],
     responses={
@@ -87,10 +87,11 @@ async def create_category(
     },
 )
 async def update_category(
+    id_category: Annotated[int, Path(alias="idCategory", gt=0)],
     data_to_update: UpdateCategory,
     service: Annotated[CategoryService, Depends(get_category_service)],
 ) -> DetailedResponse[OutCategory]:
-    category = await service.update(**data_to_update.model_dump())
+    category = await service.update(id_category, data_to_update.model_dump())
 
     return DetailedResponse(data=OutCategory.from_entity(category))
 

@@ -10,9 +10,9 @@ class SubCategoryDeletionPolicy:
         self.source: SourceRepository = source
         self.question: QuestionRepository = question
 
-    def can_delete(self, id_subcategory: Id) -> bool:
+    async def can_delete(self, id_subcategory: Id) -> bool:
         return not (
-            self.task.exists_by_subcategory(id_subcategory)
-            and self.source.exists_by_subcategory(id_subcategory)
-            and self.question.exists_by_subcategory(id_subcategory)
+            await self.task.exists_by_subcategory(id_subcategory)
+            and await self.source.exists_by_subcategory(id_subcategory)
+            and await self.question.exists_by_subcategory(id_subcategory)
         )

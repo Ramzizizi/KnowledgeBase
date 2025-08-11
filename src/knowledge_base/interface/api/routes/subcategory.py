@@ -102,7 +102,7 @@ async def update_subcategory(
     data_to_update: UpdateSubCategory,
     service: Annotated[SubCategoryService, Depends(get_subcategory_service)],
 ) -> DetailedResponse[OutSubCategory]:
-    subcategory = await service.update(id_category, id_subcategory, **data_to_update.model_dump())
+    subcategory = await service.update(id_category, id_subcategory, data_to_update.model_dump())
 
     return DetailedResponse(data=OutSubCategory.from_entity(subcategory))
 
@@ -191,7 +191,7 @@ async def update_task_subcategory(
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[TaskService, Depends(get_task_service)],
 ) -> DetailedResponse[OutTask]:
-    task = await service.update(id_category, id_subcategory, id_task, **data_to_update.model_dump())
+    task = await service.update(id_category, id_subcategory, id_task, data_to_update.model_dump())
 
     return DetailedResponse(data=OutTask.from_entity(task))
 
@@ -279,7 +279,7 @@ async def update_question_subcategory(
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[QuestionService, Depends(get_question_service)],
 ) -> DetailedResponse[OutQuestion]:
-    task = await service.update(id_category, id_subcategory, id_questions, **data_to_update.model_dump())
+    task = await service.update(id_category, id_subcategory, id_questions, data_to_update.model_dump())
 
     return DetailedResponse(data=OutQuestion.from_entity(task))
 
@@ -367,7 +367,7 @@ async def update_source_subcategory(
     id_subcategory: Annotated[int, Path(alias="idSubcategory", gt=0)],
     service: Annotated[SourceService, Depends(get_source_service)],
 ) -> DetailedResponse[OutSource]:
-    source = await service.update(id_category, id_subcategory, id_source, **data_to_update.model_dump())
+    source = await service.update(id_category, id_subcategory, id_source, data_to_update.model_dump())
 
     return DetailedResponse(data=OutSource.from_entity(source))
 

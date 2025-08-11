@@ -31,9 +31,9 @@ class CategoryService:
             new_category = NewCategory(title=title_object, description=description)
             return await uow.categories.save(new_category)
 
-    async def update(self, id_subcategory: int, changes: dict[str, str]) -> Category:
+    async def update(self, id_category: int, changes: dict[str, str]) -> Category:
         async with self.uow as uow:
-            id_object = Id(id_subcategory)
+            id_object = Id(id_category)
             title_object = Title(changes["title"])
             category = await uow.categories.get(id_object)
 
@@ -56,7 +56,7 @@ class CategoryService:
             if category is None:
                 raise NotFound("Category not found.")
 
-            if not policy.can_delete(id_object):
+            if not await policy.can_delete(id_object):
                 raise HasRelatedData("The category has related data.")
 
             await uow.categories.delete(id_object)

@@ -45,11 +45,11 @@ class SqlAlchemyTaskRepository(TaskRepository):
         # ruff: noqa: SIM108
         if isinstance(task, NewTask):
             model_task = TaskModel.from_new_entity(task)
+            self.session.add(model_task)
+            await self.session.flush([model_task])
         else:
-            model_task = TaskModel.from_entity(task)
-
-        self.session.add(model_task)
-        await self.session.flush([model_task])
+            model_task = await self.session.get_one(TaskModel, int(task.id))
+            model_task.description = TaskModel.description
 
         return model_task.to_entity()
 

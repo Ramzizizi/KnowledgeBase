@@ -37,11 +37,12 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
     async def save(self, category: NewCategory | Category) -> Category:
         if isinstance(category, NewCategory):
             model_category = CategoryModel.from_new_entity(category)
+            self.session.add(model_category)
+            await self.session.flush([model_category])
         else:
-            model_category = CategoryModel.from_entity(category)
-
-        self.session.add(model_category)
-        await self.session.flush([model_category])
+            model_category = await self.session.get_one(CategoryModel, int(category.id))
+            model_category.title = str(category.title)
+            model_category.description = category.description
 
         return model_category.to_entity()
 

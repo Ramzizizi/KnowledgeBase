@@ -44,11 +44,12 @@ class SqlAlchemyQuestionRepository(QuestionRepository):
     async def save(self, question: NewQuestion | Question) -> Question:
         if isinstance(question, NewQuestion):
             model_question = QuestionModel.from_new_entity(question)
+            self.session.add(model_question)
+            await self.session.flush([model_question])
         else:
-            model_question = QuestionModel.from_entity(question)
-
-        self.session.add(model_question)
-        await self.session.flush([model_question])
+            model_question = await self.session.get_one(QuestionModel, question.id)
+            model_question.title = str(question.title)
+            model_question.answer = question.answer
 
         return model_question.to_entity()
 

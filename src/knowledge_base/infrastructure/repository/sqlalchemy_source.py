@@ -44,11 +44,11 @@ class SqlAlchemySourceRepository(SourceRepository):
     async def save(self, source: NewSource | Source) -> Source:
         if isinstance(source, NewSource):
             model_source = SourceModel.from_new_entity(source)
+            self.session.add(model_source)
+            await self.session.flush([model_source])
         else:
-            model_source = SourceModel.from_entity(source)
-
-        self.session.add(model_source)
-        await self.session.flush([model_source])
+            model_source = await self.session.get_one(SourceModel, int(source.id))
+            model_source.link = str(source.link)
 
         return model_source.to_entity()
 

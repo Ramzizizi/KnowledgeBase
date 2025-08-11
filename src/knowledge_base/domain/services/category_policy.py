@@ -6,5 +6,5 @@ class CategoryDeletionPolicy:
     def __init__(self, subcategory: SubCategoryRepository):
         self.subcategory = subcategory
 
-    def can_delete(self, id_category: Id) -> bool:
-        return not self.subcategory.exists_by_category(id_category)
+    async def can_delete(self, id_category: Id) -> bool:
+        return not await self.subcategory.exists_by_category(id_category)

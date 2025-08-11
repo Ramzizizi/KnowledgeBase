@@ -68,7 +68,7 @@ class SubCategoryService:
                 raise NotFound("Subcategory not found.")
 
             policy = SubCategoryDeletionPolicy(uow.tasks, uow.sources, uow.questions)
-            if not policy.can_delete(id_object_subcategory):
+            if not await policy.can_delete(id_object_subcategory):
                 raise HasRelatedData("The subcategory has related data.")
 
             await uow.subcategories.delete(id_object_category, id_object_subcategory)
