@@ -13,10 +13,11 @@ class SubCategoryDeletionPolicy:
         self.question: QuestionRepository = question
 
     async def can_delete(self, id_subcategory: Id) -> bool:
-        task_exists, source_exists, question_exists = await asyncio.gather(
+        is_tasks_exist, is_sources_exist, is_questions_exist = await asyncio.gather(
             self.task.exists_by_subcategory(id_subcategory),
             self.source.exists_by_subcategory(id_subcategory),
             self.question.exists_by_subcategory(id_subcategory),
         )
-
-        return not any((task_exists, source_exists, question_exists))
+        
+        return not any((is_tasks_exist, is_sources_exist, is_questions_exist))
+      
