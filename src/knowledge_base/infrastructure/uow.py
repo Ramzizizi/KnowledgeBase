@@ -1,3 +1,5 @@
+from types import TracebackType
+
 from knowledge_base.application.uow import AbstractUoW
 from knowledge_base.infrastructure.db.database import AsyncSessionLocal
 from knowledge_base.infrastructure.db.orm.category import CategoryModel
@@ -41,6 +43,15 @@ class SqlAlchemyUoW(AbstractUoW):
         self.source_queries = SqlAlchemySourceListing(SqlAlchemyPaginator[SourceModel](self.session))
 
         return self
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        await super().__aexit__(exc_type, exc_val, exc_tb)
+        await self.session.close()
 
     async def commit(self) -> None:
         await self.session.commit()

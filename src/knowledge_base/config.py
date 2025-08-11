@@ -7,7 +7,13 @@ class SettingsApp(BaseSettings):
     DB_USER: str = "user"
     DB_PASSWORD: str = "password"
     DB_PORT: int = 5432
-    DB_URL: str = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+    @property
+    def DB_URL(self) -> str:
+        return (
+            f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}"
+            f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        )
 
 
 def get_settings_app() -> SettingsApp:
